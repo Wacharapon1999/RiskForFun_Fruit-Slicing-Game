@@ -10,16 +10,16 @@ interface LeaderboardProps {
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ records, onBack, currentPlayerCode }) => {
   // Aggregate best score per player
-  // Fix: Typing the initial value of reduce to avoid "Untyped function calls" error in some environments
-  const playerStats = records.reduce((acc, curr) => {
+  // Fix: Explicitly type the accumulator and initial value to resolve "Untyped function calls may not accept type arguments" and "unknown" errors
+  const playerStats = records.reduce((acc: Record<string, GameRecord>, curr: GameRecord) => {
     if (!acc[curr.player_code] || curr.score > acc[curr.player_code].score) {
       acc[curr.player_code] = curr;
     }
     return acc;
   }, {} as Record<string, GameRecord>);
 
-  // Fix: Cast Object.values results to GameRecord[] to ensure type safety during sort and map operations
-  const sortedPlayers = (Object.values(playerStats) as GameRecord[]).sort((a, b) => b.score - a.score);
+  // Fix: Explicitly type the resulting array as GameRecord[] to ensure properties like score and player_code are accessible
+  const sortedPlayers: GameRecord[] = Object.values(playerStats).sort((a, b) => b.score - a.score);
 
   return (
     <div className="min-h-full w-full bg-[#0a1628] flex flex-col items-center p-4 md:p-8 overflow-y-auto">
@@ -51,7 +51,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ records, onBack, currentPlaye
                   else if (rank === 3) rankColor = 'bg-orange-600';
 
                   return (
-                    <tr key={player.player_code} className={`${isCurrent ? 'bg-amber-500/10' : 'hover:bg-white/5'} transition-colors`}>
+                    <tr key={player.player_code + idx} className={`${isCurrent ? 'bg-amber-500/10' : 'hover:bg-white/5'} transition-colors`}>
                       <td className="p-4">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${rankColor}`}>
                           {rank}
